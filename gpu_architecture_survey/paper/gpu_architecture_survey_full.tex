@@ -601,62 +601,57 @@ Blackwell targets:
 
 \textbf{Remaining bottleneck}: Test-time compute scaling (reasoning models that "think" for minutes) needs speculative execution and better scheduling.
 
-\section{Rubin (2026): Energy Efficiency at Extreme Scale}
+\section{Rubin (2026): Projected Evolution}
 
-\subsection{Workload Context and Bottleneck}
+\subsection{Expected Workload Landscape}
 
-By 2026, the AI landscape demands:
+Rubin (projected 2026-2027) will face:
 \begin{itemize}
-\item Multi-trillion parameter models (10T+ parameters)
-\item Real-time multimodal AI (vision, language, audio fusion)
-\item Extended reasoning with massive test-time compute
+\item 10T+ parameter models
+\item Real-time multimodal AI (vision + language + audio fusion)
+\item Reasoning models with extensive test-time compute
+\item Energy efficiency constraints (data center power limits)
 \end{itemize}
 
-The dominant bottleneck shifts to \textbf{energy efficiency}: data centers approach physical power limits (megawatts per facility), making performance-per-watt the critical metric. Training trillion-parameter models on existing architectures requires unsustainable energy consumption.
+\subsection{Predicted Architectural Features}
 
-\subsection{Architectural Response: The Vera Rubin Platform}
+Based on trend extrapolation:
 
-Rubin (announced for 2H 2026) represents NVIDIA's first architecture explicitly designed for energy-constrained extreme-scale AI \cite{nvidia2024rubin}. Built on TSMC's 3nm process with 336 billion transistors per GPU, Rubin introduces:
-
-\textbf{Third-generation Transformer Engine}:
+\textbf{Sixth-generation Tensor Cores}:
 \begin{itemize}
-\item FP4 precision: 50 PFLOPS (inference), 35 PFLOPS (training)
-\item FP8 precision: 16 PFLOPS
-\item Hardware-accelerated adaptive compression for activation sparsity
-\item Enhanced confidential computing for secure multi-tenant AI
+\item FP2/FP3 precision? Binary/ternary networks?
+\item Specialized attention units (hardware FlashAttention)
+\item Multimodal fusion cores
 \end{itemize}
 
-\textbf{HBM4 Memory System}:
+\textbf{Memory}:
 \begin{itemize}
-\item Capacity: 288 GB per GPU (2.4x Blackwell)
-\item Bandwidth: 22 TB/s (2.75x Blackwell)
-\item Bandwidth-per-FLOP: Maintains compute-memory balance at FP4
+\item HBM4: 10+ TB/s bandwidth, 256GB+ capacity
+\item Processing-in-memory for attention operations
 \end{itemize}
 
-\textbf{NVLink 6}:
+\textbf{Scheduling}:
 \begin{itemize}
-\item 3.6 TB/s bidirectional GPU-to-GPU bandwidth
-\item Enables tightly-coupled multi-GPU model parallelism
+\item Hardware MoE routing
+\item Speculative execution for inference
+\item Rack-scale or pod-scale programming models
 \end{itemize}
 
-\textbf{Platform Integration (Vera Rubin)}:
+\subsection{The Energy Efficiency Bottleneck}
+
+The dominant bottleneck will shift to \textbf{energy efficiency}:
 \begin{itemize}
-\item Custom 88-core Arm "Olympus" CPU for orchestration
-\item ConnectX-9 SuperNICs: 1.6 Tb/s per GPU for cluster networking
-\item BlueField-4 DPUs: 800 Gb/s data processing units
-\item Second-generation RAS Engine for data center reliability
+\item Data centers hit physical power limits (megawatts per facility)
+\item Cooling becomes architectural constraint
+\item Performance-per-watt supersedes raw performance
 \end{itemize}
 
-\subsection{Impact and Remaining Challenges}
-
-Rubin's 3nm process and architectural efficiency target 3-5x performance-per-watt improvement over Blackwell, enabling:
+This may drive:
 \begin{itemize}
-\item Training 10T+ parameter models within realistic power budgets
-\item Real-time inference for multimodal reasoning models
-\item Sustainable scaling of AI infrastructure
+\item Optical interconnects
+\item Superconducting logic
+\item Novel device physics (beyond CMOS)
 \end{itemize}
-
-\textbf{Remaining bottleneck}: Beyond 3nm, Moore's Law scaling slows dramatically. Future architectures (Rubin Ultra, 2027) may require photonic interconnects, processing-in-memory, or fundamentally new compute paradigms to continue scaling.
 
 \section{Cross-Generational Analysis}
 

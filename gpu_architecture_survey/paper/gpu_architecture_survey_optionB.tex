@@ -1,0 +1,523 @@
+\documentclass{article}
+
+% Recommended packages for figures and better typesetting
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+
+% hyperref makes hyperlinks in the resulting PDF
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review
+\usepackage{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+% if you use cleveref
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\icmltitlerunning{GPU Architecture Evolution: A Bottleneck-Driven Survey}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{GPU Architecture Evolution Under ML Workload Pressure:\\
+A Causal, Bottleneck-Driven Analysis from Fermi to Rubin}
+
+\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Survey Paper}{equal,comp}
+\end{icmlauthorlist}
+
+\icmlaffiliation{comp}{Department of Computer Science}
+
+\icmlcorrespondingauthor{Author}{email@university.edu}
+
+\icmlkeywords{GPU Architecture, Deep Learning, Hardware Acceleration, Performance Bottlenecks}
+
+\vskip 0.3in
+
+\begin{abstract}
+We present a systematic analysis of GPU architecture evolution from NVIDIA Fermi (2010) through the projected Rubin generation (2026), examining how each architectural transition directly addresses performance bottlenecks created by emerging machine learning workloads. Through a bottleneck-driven lens, we analyze seven GPU generations across five dimensions: workload drivers, computational primitives, memory hierarchies, numerical precision, and performance scaling. We identify a clear causal chain: Fermi addressed HPC memory bandwidth, Volta introduced Tensor Cores for matrix multiplication throughput, Ampere added structured sparsity and TF32 precision, Hopper optimized for transformer attention with FP8, and Blackwell targets inference efficiency with FP4. Each generation's innovations directly resolve the dominant bottleneck of its era while establishing new constraints that drive subsequent designs.
+\end{abstract}
+]
+
+\printAffiliationsAndNotice{}
+
+% ============================================================
+% INTRODUCTION: target 25 lines
+% ============================================================
+\section{Introduction}
+
+The explosive growth of deep learning has fundamentally transformed GPU architecture over the past 15 years. The architectural revolution was driven by three converging forces: the 2012 AlexNet breakthrough demonstrating deep learning's potential \cite{krizhevsky2012imagenet}, the scaling hypothesis showing larger models consistently improve performance \cite{kaplan2020scaling}, and the transformer architecture's emergence as the dominant paradigm for vision and language \cite{vaswani2017attention}.
+
+Prior to Fermi, GPGPU architectures (NVIDIA G80/GT200) lacked features needed for HPC and early ML: double-precision arithmetic, ECC memory, true cache hierarchies, and unified address spaces \cite{nvidia2009fermi}. Deep learning remained nascent—AlexNet would not arrive until 2012, and convolutional networks were computationally prohibitive on CPUs.
+
+This survey examines GPU architecture evolution through a \textit{bottleneck-driven lens}: each generation's design directly addresses the dominant performance bottleneck created by the ML workloads of its era. We cover seven GPU generations:
+\begin{itemize}
+\item \textbf{Fermi (2010)}: HPC foundation—cache hierarchy, ECC, IEEE precision
+\item \textbf{Volta (2017)}: Tensor Cores for matrix multiplication throughput
+\item \textbf{Turing (2018)}: INT8/INT4 inference specialization
+\item \textbf{Ampere (2020)}: Structured sparsity, TF32/BF16, multi-instance GPU
+\item \textbf{Hopper (2022)}: Transformer Engine with FP8 precision
+\item \textbf{Blackwell (2024)}: FP4, dual-die, rack-scale inference
+\item \textbf{Rubin (2026)}: Energy efficiency at extreme scale (3nm, HBM4)
+\end{itemize}
+
+For each generation we examine: the workload bottleneck resolved, the key architectural innovation, memory hierarchy evolution, numerical precision, and the new constraint established for the next generation.
+
+% ============================================================
+% FERMI: target 45 lines
+% ============================================================
+\section{Fermi (2010): Establishing the Foundation}
+
+\textbf{Bottleneck}: Scientific computing demanded GPU acceleration, but existing architectures (G80/GT200) lacked reliability and precision features. The dominant bottleneck was \textit{memory bandwidth for irregular HPC codes}: high peak FLOPS without cache hierarchy support caused poor performance on applications with irregular memory access patterns such as computational fluid dynamics and molecular dynamics.
+
+\subsection{Key Innovation: Cache Hierarchy and IEEE Compliance}
+
+Fermi (GF100) introduced a true three-level memory hierarchy that addressed the HPC bottleneck:
+\begin{itemize}
+\item \textbf{L1/Shared Memory}: 64KB configurable per SM (16/48KB or 48/16KB split), programmer-managed
+\item \textbf{L2 Cache}: 768KB unified across all SMs, hardware-managed
+\item \textbf{GDDR5 DRAM}: 384-bit interface, up to 6GB with full ECC, 177 GB/s bandwidth
+\end{itemize}
+
+Each of 16 streaming multiprocessors (SMs) contained 32 CUDA Cores (512 total) with dual warp schedulers enabling two-way instruction-level parallelism. The GigaThread engine supported up to 48 warps (1536 threads) per SM with hardware context switching. Concurrent kernel execution (up to 16 kernels) improved multi-tenant utilization.
+
+Full IEEE 754-2008 compliance—correct rounding, denormals, NaN handling—addressed HPC requirements. FP64 ran at 1/2 the FP32 rate via 16 dedicated units per SM. No specialized ML units existed; all operations executed on programmable CUDA Cores.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+SMs / CUDA Cores & 16 / 512 \\
+FP32 throughput & 1.5 TFLOPS \\
+FP64 throughput & 750 GFLOPS (1/2 FP32) \\
+Memory bandwidth & 177 GB/s \\
+Memory capacity & up to 6 GB GDDR5 ECC \\
+L2 Cache & 768 KB \\
+Compute/bandwidth & $\sim$8.5 FLOPs/byte \\
+\bottomrule
+\end{tabular}
+\caption{Fermi (GF100) specifications}
+\end{table}
+
+\textbf{Impact}: Fermi resolved the HPC reliability bottleneck, enabling GPU acceleration of scientific workloads requiring IEEE compliance and predictable behavior. Its SM structure, warp-based SIMT execution, and shared memory programming model became permanent architectural invariants carried through all subsequent generations.
+
+\textbf{Remaining bottleneck}: At 177 GB/s bandwidth and 1.5 TFLOPS FP32, the arithmetic intensity was insufficient for the $O(n^3)$ matrix operations dominating neural network training. General-purpose CUDA Cores delivered too little throughput for the emerging deep learning revolution.
+
+% ============================================================
+% VOLTA: target 70 lines
+% ============================================================
+\section{Volta (2017): The Tensor Core Revolution}
+
+\textbf{Bottleneck}: Between Fermi (2010) and Volta (2017), deep learning exploded. AlexNet (2012) demonstrated CNNs' potential, ResNets (2015) enabled 100+ layer networks, and attention mechanisms previewed transformers \cite{bahdanau2014neural}. Training times stretched to weeks on Pascal P100, limited by \textit{matrix multiplication throughput}: general-purpose CUDA Cores performing $O(n^3)$ GEMM via scalar FMA operations delivered insufficient performance.
+
+\subsection{Key Innovation: Tensor Cores}
+
+Volta (GV100) introduced \textbf{Tensor Cores}—specialized matrix multiply-accumulate units delivering 12x speedup over Pascal for mixed-precision training \cite{nvidia2017volta}. Each SM contained 8 Tensor Cores (640 total across 80 SMs). Each Tensor Core performs per clock:
+\begin{equation}
+D = A \times B + C, \quad A, B \in \mathbb{R}^{4\times4}\text{ (FP16)},\quad C, D \in \mathbb{R}^{4\times4}\text{ (FP32)}
+\end{equation}
+
+This represents an architectural phase transition: from scalar ALUs to specialized matrix units. The V100 retained 5120 CUDA Cores for non-matrix operations, establishing a hybrid architecture where Tensor Cores handle $\sim$80\% of ML compute (125 TFLOPS vs.\ 15.7 TFLOPS from CUDA Cores alone).
+
+\textbf{Mixed-precision training}: Volta established the paradigm that became standard practice \cite{micikevicius2017mixed}:
+\begin{itemize}
+\item \textbf{FP16} inputs and activations to Tensor Cores
+\item \textbf{FP32} accumulation and master weight storage
+\item \textbf{Loss scaling} to prevent gradient underflow
+\end{itemize}
+FP16's $\pm 65504$ range suffices with loss scaling, halving memory footprint and doubling effective throughput.
+
+\textbf{Memory hierarchy}: HBM2 provided the 5x bandwidth increase necessary to feed Tensor Cores:
+\begin{itemize}
+\item \textbf{HBM2}: 4096-bit interface, 16/32 GB capacity, 900 GB/s (5x Fermi)
+\item \textbf{L2 Cache}: 6 MB (8x Fermi's 768 KB)
+\item \textbf{L1/Shared}: 128 KB configurable per SM (2x Fermi)
+\end{itemize}
+At 900 GB/s, compute-to-bandwidth reached $\sim$139 FLOPs/byte, making ML workloads compute-bound rather than bandwidth-bound. The 5x bandwidth increase was essential—125 TFLOPS of Tensor Core throughput would be memory-starved at Fermi's 177 GB/s.
+
+\textbf{Parallel execution}: Volta introduced independent thread scheduling, departing from lockstep warp execution. Threads within a warp can now diverge and reconverge at sub-warp granularity, enabling fine-grained synchronization primitives and more efficient handling of irregular control flow. Each SM supported up to 64 warps (2048 threads), a significant increase from prior architectures, enabling finer-grained occupancy and latency hiding.
+
+\textbf{Multi-GPU communication}: NVLink 2.0 provided 300 GB/s bidirectional bandwidth per GPU, enabling model parallelism for models that exceeded single-GPU memory. This became essential as early transformer models (BERT-Large 340M, GPT-2 1.5B) approached or exceeded the 16/32 GB capacity.
+
+\textbf{FP64 retention}: Despite ML focus, Volta maintained FP64 at 7.8 TFLOPS—demonstrating the hybrid architecture's flexibility for HPC workloads. This positioned V100 as a convergence platform for both scientific computing and deep learning.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+SMs / Tensor Cores & 80 / 640 \\
+FP16 (Tensor Core) & 125 TFLOPS \\
+FP32 (CUDA Core) & 15.7 TFLOPS \\
+FP64 & 7.8 TFLOPS \\
+Memory bandwidth & 900 GB/s \\
+Memory capacity & 16/32 GB HBM2 \\
+L2 Cache & 6 MB \\
+NVLink 2.0 & 300 GB/s \\
+\bottomrule
+\end{tabular}
+\caption{Volta (V100) specifications}
+\end{table}
+
+\textbf{Impact}: Tensor Cores became a permanent fixture in all subsequent NVIDIA architectures. Mixed-precision training (FP16/FP32) became the default practice across PyTorch and TensorFlow. ResNet-50 training improved 12x over Pascal; BERT-Base (110M parameters) became trainable in hours rather than days. HBM was established as the standard for high-end data center GPUs.
+
+\textbf{Remaining bottleneck}: Memory capacity (16/32 GB) limited large-model training—GPT-2 (1.5B parameters) required model parallelism. Transformer attention's $O(n^2)$ complexity began to emerge as a training bottleneck, and inference latency optimization was unaddressed.
+
+% ============================================================
+% TURING: target 45 lines
+% ============================================================
+\section{Turing (2018): Inference Specialization}
+
+\textbf{Bottleneck}: Volta optimized for training throughput. Deploying trained models for inference required a different optimization target: \textit{low-latency, cost-efficient computation} under real-time constraints and smaller batch sizes—characteristics poorly served by Volta's training-oriented design. Simultaneously, gaming GPUs needed real-time ray tracing acceleration.
+
+\subsection{Key Innovation: INT8/INT4 Tensor Cores and RT Cores}
+
+Turing (TU102) introduced dual specialization \cite{nvidia2018turing}. Second-generation Tensor Cores gained integer precision support targeting inference:
+\begin{itemize}
+\item \textbf{INT8}: 130 TOPS—4x throughput over FP16 (65 TFLOPS)
+\item \textbf{INT4}: 260 TOPS—8x throughput for extreme quantization scenarios
+\item \textbf{FP16}: 65 TFLOPS maintained for high-accuracy inference
+\end{itemize}
+
+Post-training quantization (PTQ) maintains accuracy for most vision and language models. Quantization-aware training (QAT) enables INT8 with $<$1\% accuracy loss. This enabled real-time inference on edge devices and reduced production serving costs.
+
+\textbf{RT Cores} provided dedicated ray-triangle intersection and BVH traversal acceleration—the first domain-specific units outside ML, demonstrating that GPU specialization extended beyond deep learning.
+
+\textbf{Memory}: Turing used GDDR6 (320 GB/s, 16 GB) rather than HBM2, reflecting data center inference GPU economics. This lower bandwidth vs.\ V100's 900 GB/s made inference latency the practical bottleneck at small batch sizes.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+FP16 (Tensor Core) & 65 TFLOPS \\
+INT8 throughput & 130 TOPS \\
+INT4 throughput & 260 TOPS \\
+Memory bandwidth & 320 GB/s (GDDR6) \\
+Memory capacity & 16 GB \\
+\bottomrule
+\end{tabular}
+\caption{Turing (Tesla T4) specifications}
+\end{table}
+
+\textbf{Impact}: Turing enabled real-time object detection (YOLO, SSD), DLSS neural super-resolution for gaming, and edge AI deployment. INT8 inference became the production standard for model serving. The architecture demonstrated GPU specialization diverging by use case: Volta for data center training, Turing for consumer inference.
+
+\textbf{Remaining bottleneck}: Training throughput for GPT-scale models (billions of parameters), hardware exploitation of network sparsity, and cloud GPU multi-tenancy efficiency remained unaddressed by Turing's inference focus.
+
+% ============================================================
+% AMPERE: target 70 lines
+% ============================================================
+\section{Ampere (2020): Sparsity and Precision Diversity}
+
+\textbf{Bottleneck}: GPT-3 (175B parameters, 2020) \cite{brown2020language} exposed three simultaneous constraints: (1) insufficient training throughput—GPT-3 required thousands of GPU-months at Volta-era speeds; (2) no hardware support for exploiting network sparsity, leaving 2--3x potential speedups unrealized in pruned models; and (3) poor cloud GPU utilization ($\sim$30\%) from single-tenant deployments.
+
+\subsection{Key Innovation: Structured Sparsity and Precision Diversity}
+
+A100's third-generation Tensor Cores introduced \textbf{precision diversity} and \textbf{2:4 structured sparsity} \cite{nvidia2020ampere,mishra2021accelerating}:
+
+\begin{itemize}
+\item \textbf{TF32} (TensorFloat-32): FP32 range with 10-bit mantissa (FP16 precision). Automatic 10x speedup for FP32 workloads with no code changes—legacy FP32 training code instantly benefits.
+\item \textbf{BF16} (Brain Float 16): Google's format with wider dynamic range than FP16, better numerical stability for large transformer training.
+\item \textbf{FP64 Tensor Cores}: 19.5 TFLOPS (2.5x V100)—HPC and AI science convergence.
+\item \textbf{2:4 structured sparsity}: Of every 4 consecutive values, exactly 2 are zero. The Tensor Core stores only 2 non-zero values plus 2-bit index metadata, doubling effective throughput: 312 TFLOPS $\to$ 624 TFLOPS (FP16 sparse).
+\end{itemize}
+
+Structured sparsity represents algorithmic-hardware co-design: models adapt to the 2:4 constraint via sparsity-aware training, gaining 2x throughput with $<$1\% accuracy degradation.
+
+\textbf{Multi-Instance GPU (MIG)}: A100 partitions into up to 7 isolated instances, each with dedicated SMs, memory controllers, L2 cache partitions, and bandwidth—resolving the multi-tenancy bottleneck and improving cloud utilization from $\sim$30\% to $\sim$90\%.
+
+\textbf{Asynchronous execution}: A100 introduced three asynchrony mechanisms to hide latency:
+\begin{itemize}
+\item \textbf{Async copy}: Global$\to$shared memory transfers bypass the register file, freeing compute resources
+\item \textbf{Hardware task graphs}: Kernel launch overhead eliminated for recurring graph patterns
+\item \textbf{Async barriers}: Producer-consumer synchronization patterns implemented in hardware
+\end{itemize}
+These mechanisms enable overlapping communication, computation, and synchronization to maximize Tensor Core utilization.
+
+\textbf{Performance scaling}: A100's improvements relative to V100:
+\begin{itemize}
+\item FP16 Tensor (dense): 312 TFLOPS vs.\ 125 TFLOPS = 2.5x
+\item Memory bandwidth: 1.6 TB/s vs.\ 900 GB/s = 1.8x
+\item NVLink: 600 GB/s vs.\ 300 GB/s = 2x
+\item L2 Cache: 40 MB vs.\ 6 MB = 6.7x
+\end{itemize}
+Compute grew faster than bandwidth (2.5x vs.\ 1.8x), maintaining compute-bound operation for Tensor Core workloads.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+FP16 Tensor (dense) & 312 TFLOPS \\
+FP16 Tensor (sparse) & 624 TFLOPS \\
+TF32 Tensor (dense) & 156 TFLOPS \\
+FP64 Tensor & 19.5 TFLOPS \\
+Memory bandwidth & 1.6 TB/s (40 GB) / 2.039 TB/s (80 GB) \\
+Memory capacity & 40 / 80 GB HBM2e \\
+L2 Cache & 40 MB (6.7x V100) \\
+NVLink 3.0 & 600 GB/s (2x V100) \\
+MIG partitions & up to 7 isolated instances \\
+\bottomrule
+\end{tabular}
+\caption{Ampere (A100) specifications}
+\end{table}
+
+\textbf{Impact}: GPT-3 175B fit on 8$\times$A100 with model parallelism; BERT training ran 4--8x faster than V100. TF32 provided instant 10x speedup for FP32 training code. The 40 MB L2 cached large activation tensors, reducing DRAM traffic for transformer workloads. Compute-to-memory-bandwidth ratio reached $\sim$195 FLOPs/byte, sustaining compute-bound operation despite growing model sizes.
+
+\textbf{Remaining bottleneck}: Transformer attention's $O(n^2)$ complexity consumed 40\% of training time at 2048-token context. Longer contexts (8K--32K tokens) became computationally prohibitive. FP16 numerical instability began to surface for very large models.
+
+% ============================================================
+% HOPPER: target 75 lines
+% ============================================================
+\section{Hopper (2022): The Transformer Engine}
+
+\textbf{Bottleneck}: By 2022, language models reached trillion-parameter scale: PaLM 540B, Megatron-Turing NLG 530B, and GPT-4 trained on thousands of GPUs for months \cite{chowdhery2022palm}. Three bottlenecks dominated:
+\begin{enumerate}
+\item \textbf{Transformer attention}: 40--60\% of training time at sequence lengths above 2048
+\item \textbf{Precision limits}: FP16 numerical instability at extreme model scales
+\item \textbf{Multi-GPU communication}: All-reduce operations bottlenecking scaling beyond 1000 GPUs
+\end{enumerate}
+
+\subsection{Key Innovation: Transformer Engine with FP8}
+
+Hopper (GH100/H100) introduced the \textbf{Transformer Engine}—software and hardware co-designed specifically for transformer attention \cite{nvidia2022hopper}. Fourth-generation Tensor Cores support two FP8 formats:
+\begin{itemize}
+\item \textbf{E4M3}: 4-bit exponent, 3-bit mantissa—high precision for forward pass activations
+\item \textbf{E5M2}: 5-bit exponent, 2-bit mantissa—wider range for gradient computation
+\end{itemize}
+
+The Transformer Engine analyzes per-layer tensor statistics and automatically selects E4M3 vs.\ E5M2, achieving 2x throughput over FP16 (1000 $\to$ 2000 TFLOPS FP8) with $<$0.5\% accuracy degradation. FP8 also doubles effective memory capacity: models that required FP16 can now store twice as many parameters in the same DRAM.
+
+\textbf{Thread Block Clusters}: H100 introduced groups of thread blocks spanning multiple SMs with distributed shared memory—SM-to-SM data exchange 7x faster than global memory. This enables large-matrix tiling across SMs for massive transformer GEMM operations, addressing the parallelism bottleneck.
+
+\textbf{Tensor Memory Accelerator (TMA)}: Handles multi-dimensional tensor transfers asynchronously without thread involvement, freeing all cores for computation while data moves in the background.
+
+\textbf{Communication}: NVLink 4.0 (900 GB/s per GPU, 1.5x A100) combined with the NVLink Switch System (256 GPUs, 57.6 TB/s all-to-all) addressed the distributed training bottleneck. In-network SHARP reductions accelerate collective operations.
+
+\textbf{DPX instructions}: Hardware support for dynamic programming recurrences (Smith-Waterman genomics: 7x speedup over A100; Floyd-Warshall routing: 7x speedup)—demonstrating specialization scope expanding beyond ML to other recursive algorithms.
+
+\textbf{Performance scaling}: H100's improvements relative to A100:
+\begin{itemize}
+\item FP8 Tensor (dense): 2000 TFLOPS vs.\ A100 FP16 312 TFLOPS = 6.4x
+\item FP16 Tensor (dense): 1000 TFLOPS vs.\ 312 TFLOPS = 3.2x
+\item Memory bandwidth: 3.35 TB/s vs.\ 1.6 TB/s = 2.1x
+\item Transformer Engine: 9x training speedup, 30x inference speedup vs.\ A100
+\end{itemize}
+At $\sim$597 FLOPs/byte (FP8), workloads became extremely compute-bound, validating the investment in Tensor Core throughput over memory bandwidth growth.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+FP8 Tensor (dense) & 2000 TFLOPS \\
+FP8 Tensor (sparse) & 4000 TFLOPS \\
+FP16 Tensor (dense) & 1000 TFLOPS \\
+Memory bandwidth & 3.35 TB/s \\
+Memory capacity & 80 GB HBM3 \\
+L2 Cache & 50 MB \\
+NVLink 4.0 & 900 GB/s per GPU \\
+NVLink Switch & 57.6 TB/s (256 GPUs) \\
+Compute/bandwidth & $\sim$597 FLOPs/byte (FP8) \\
+\bottomrule
+\end{tabular}
+\caption{Hopper (H100) specifications}
+\end{table}
+
+\textbf{Impact}: H100 delivers 9x training speedup and 30x inference speedup over A100. GPT-4 scale training became feasible within realistic time budgets; long-context transformers (32K+ tokens) became practical. The Transformer Engine's automatic FP8 selection eliminated manual per-layer tuning. At $\sim$597 FLOPs/byte, workloads became extremely compute-bound, justifying the investment in Tensor Core throughput over bandwidth.
+
+\textbf{Remaining bottleneck}: Attention's $O(n^2)$ complexity persists even at FP8; FlashAttention \cite{dao2022flashattention} provides algorithmic relief but architectural support for attention sparsity remains absent. Inference at trillion-parameter scale for real-time serving at scale requires a new optimization target.
+
+% ============================================================
+% BLACKWELL: target 75 lines
+% ============================================================
+\section{Blackwell (2024): Inference at Scale}
+
+\textbf{Bottleneck}: As models reached GPT-4 scale, inference deployment emerged as the dominant challenge. Serving trillion-parameter models to millions of users requires extreme throughput (tokens/second), sub-100ms latency (time-to-first-token), and low cost-per-token—requirements that Hopper's training optimizations do not directly address. Simultaneously, single-die transistor limits constrained monolithic scaling.
+
+\subsection{Key Innovation: Dual-Die Design and FP4}
+
+Blackwell (GB100/GB200) introduces two architectural advances \cite{nvidia2024blackwell}:
+
+\textbf{Dual-die package}: Two reticle-limited dies connected by a 10 TB/s chip-to-chip NVLink-C2C interconnect, yielding 208 billion transistors (2.6x H100). This breaks the monolithic die scaling wall by treating two dies as a single logical GPU with a fast coherent fabric between them.
+
+\textbf{Second-generation Transformer Engine with FP4}: The NVFP4 format uses micro-tensor scaling—fine-grained per-group scaling factors enabling aggressive quantization while maintaining accuracy:
+\begin{itemize}
+\item 2x memory capacity over FP8 (400B parameter models in FP8 budgets)
+\item 2x throughput over FP8
+\item Accuracy maintained through fine-grained scaling with $<$1\% degradation
+\end{itemize}
+
+\textbf{Blackwell Ultra variant} adds 2x attention layer acceleration and 1.5x more AI compute FLOPS targeting reasoning models with extended test-time compute.
+
+\textbf{NVL72 rack-scale configuration}: 72 GPUs in a single NVLink domain operating as one logical GPU with 130 TB/s aggregate bandwidth. This shifts the unit of computation from individual GPU to entire rack—NVL72 can serve trillion-parameter models with single-digit millisecond latency.
+
+\textbf{Decompression engine}: LZ4, Snappy, and Deflate decompression in hardware accelerates data analytics pipelines without CPU involvement.
+
+\textbf{RAS Engine}: AI-powered fault prediction monitors thousands of hardware data points, minimizing downtime in large-scale AI factories. As GPU deployments scale to tens of thousands, reliability becomes an architectural requirement.
+
+\textbf{Grace-Blackwell integration}: 900 GB/s coherent CPU-GPU link enables CPU and GPU to share memory addressing, simplifying large-model orchestration.
+
+\textbf{Performance scaling}: Blackwell's improvements relative to H100:
+\begin{itemize}
+\item Memory bandwidth: 8 TB/s vs.\ 3.35 TB/s = 2.7x
+\item Memory capacity: 192 GB vs.\ 80 GB = 2.4x
+\item Transistors: 208B vs.\ 80B = 2.6x (enabled by dual-die)
+\item NVL72 inference: 30x speedup over H100 for GPT-4 scale models
+\item Cost efficiency: 25x lower cost-per-token vs.\ H100
+\end{itemize}
+
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+Transistors & 208B (dual-die) \\
+FP8 throughput & 10 PFLOPS (5x H100) \\
+FP4 throughput & 20 PFLOPS (10x H100 FP8) \\
+Memory bandwidth & 8 TB/s \\
+Memory capacity & 192 GB HBM3e \\
+Chip-to-chip link & 10 TB/s (NVLink-C2C) \\
+NVL72 bandwidth & 130 TB/s aggregate \\
+CPU-GPU link & 900 GB/s (Grace coherent) \\
+\bottomrule
+\end{tabular}
+\caption{Blackwell (GB200) specifications}
+\end{table}
+
+\textbf{Impact}: NVL72 delivers 30x inference speedup over H100 for GPT-4 scale models at 25x lower cost-per-token. Real-time trillion-parameter inference ($<$1s latency) becomes practical for production deployment. Long-context inference (100K+ tokens) and mixture-of-experts sparse models fit without spilling to CPU memory. FP4 doubles the effective serving capacity of each GPU.
+
+\textbf{Remaining bottleneck}: Test-time compute scaling—reasoning models that "think" for minutes using chain-of-thought—requires better speculative execution, scheduling, and energy efficiency. Power consumption of large NVL72 clusters pushes data center power limits.
+
+% ============================================================
+% RUBIN: target 40 lines
+% ============================================================
+\section{Rubin (2026): Energy Efficiency at Extreme Scale}
+
+\textbf{Bottleneck}: Multi-trillion-parameter models (10T+), real-time multimodal AI (vision, language, audio fusion), and extended reasoning with massive test-time compute push data centers toward physical power limits (megawatts per facility). \textit{Performance-per-watt} becomes the critical metric—training trillion-parameter models on Blackwell-era hardware requires unsustainable energy consumption.
+
+\subsection{Key Innovation: 3nm Process and Third-Generation Transformer Engine}
+
+Rubin (announced 2H 2026) \cite{nvidia2024rubin} is NVIDIA's first architecture explicitly designed for energy-constrained extreme-scale AI. Built on TSMC 3nm process with significantly increased transistor count:
+
+\begin{itemize}
+\item \textbf{Third-generation Transformer Engine}: Extended FP4 precision support for both inference and training; enhanced FP8 capabilities
+\item \textbf{HBM4 memory}: Next-generation high-bandwidth memory with substantially increased capacity and bandwidth over Blackwell
+\item \textbf{NVLink 6}: Further increased GPU-to-GPU bandwidth for model parallelism
+\item \textbf{Vera Rubin platform}: Custom Arm CPU for orchestration, next-generation SuperNICs for networking, advanced DPUs, enhanced RAS Engine
+\end{itemize}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{ll}
+\toprule
+Metric & Value \\
+\midrule
+Process node & TSMC 3nm \\
+Memory type & HBM4 (next-gen) \\
+Interconnect & NVLink 6 \\
+Platform & Vera Rubin \\
+Target & 3--5x perf/watt vs Blackwell \\
+\bottomrule
+\end{tabular}
+\caption{Rubin platform key features}
+\end{table}
+
+\textbf{Impact}: 3--5x performance-per-watt improvement over Blackwell enables training 10T+ parameter models within realistic power budgets and real-time inference for multimodal reasoning models.
+
+\textbf{Remaining bottleneck}: Beyond 3nm, Moore's Law scaling slows dramatically. Future architectures may require photonic interconnects, processing-in-memory, or fundamentally new compute paradigms to continue the scaling trajectory.
+
+% ============================================================
+% CROSS-GENERATIONAL ANALYSIS: target 40 lines
+% ============================================================
+\section{Cross-Generational Analysis}
+
+\subsection{Bottleneck Evolution Chain}
+
+Each generation's solution creates the next generation's bottleneck:
+\begin{equation}
+\begin{aligned}
+\text{Fermi} &\xrightarrow{\text{HPC memory}} \text{Volta} \xrightarrow{\text{GEMM throughput}} \text{Turing} \\
+&\xrightarrow{\text{inference latency}} \text{Ampere} \xrightarrow{\text{training scale}} \text{Hopper} \\
+&\xrightarrow{\text{transformer attention}} \text{Blackwell} \xrightarrow{\text{inference scale}} \text{Rubin} \xrightarrow{\text{energy}} \text{?}
+\end{aligned}
+\end{equation}
+
+\subsection{Precision and Specialization Trajectories}
+
+Precision halves every $\sim$3 years, driven by ML workloads' noise tolerance and quantization-aware training:
+\begin{equation}
+\text{FP64} \to \text{FP32} \to \text{FP16} \to \text{INT8/TF32/BF16} \to \text{FP8} \to \text{FP4}
+\end{equation}
+Simultaneously, the general-purpose fraction of compute declined: Fermi (100\%) $\to$ Volta ($\sim$20\%) $\to$ Hopper ($\sim$15\%) $\to$ Blackwell ($\sim$10\%), with GPUs converging toward neural processing units.
+
+\subsection{Memory Bandwidth Scaling}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+Generation & Bandwidth & vs.\ Prior & Compute/BW \\
+\midrule
+Fermi (2010) & 177 GB/s & — & $\sim$8 FLOPs/B \\
+Volta (2017) & 900 GB/s & 5.1x & $\sim$139 FLOPs/B \\
+Ampere (2020) & 1.6 TB/s & 1.8x & $\sim$195 FLOPs/B \\
+Hopper (2022) & 3.35 TB/s & 1.9x & $\sim$667 FLOPs/B \\
+Blackwell (2024) & 8 TB/s & 2.7x & — \\
+\bottomrule
+\end{tabular}
+\caption{Memory bandwidth growth. Compute/BW at primary ML precision.}
+\end{table}
+
+Bandwidth grows $\sim$2x every 2--3 years, tracking compute growth. The rising FLOPs/byte ratio reflects precision reduction: each halving of precision doubles the compute that can be sustained per byte of memory bandwidth.
+
+\subsection{Architectural Invariants}
+
+Despite radical specialization, four core structures persist across 15 years of GPU evolution: (1) SM-based organization (16$\to$144+ SMs); (2) 32-thread warps, unchanged since G80 (2006); (3) three-level memory hierarchy (registers $\to$ shared/L1 $\to$ L2 $\to$ DRAM); and (4) the thread$\to$block$\to$grid execution hierarchy, extended with thread block clusters in Hopper. These invariants provide programming model stability across architectural upheaval.
+
+% ============================================================
+% CONCLUSIONS: target 30 lines
+% ============================================================
+\section{Conclusions}
+
+This survey examined GPU architecture evolution through a bottleneck-driven lens, revealing clear causal relationships between workload pressure and architectural innovation.
+
+\textbf{1. Bottleneck-driven evolution}: Each generation directly addresses the dominant bottleneck of its era. Fermi resolved HPC memory reliability; Volta introduced Tensor Cores for matrix multiplication; Turing added INT8/INT4 for inference; Ampere introduced structured sparsity and multi-tenancy; Hopper built the Transformer Engine for FP8; Blackwell delivered FP4 and rack-scale inference; Rubin targets energy efficiency at 3nm.
+
+\textbf{2. Specialization trajectory}: GPUs evolved from fully general-purpose (Fermi, 0\% specialized) to domain-specific (Blackwell, $\sim$90\% specialized). The trend is monotonic and accelerating—future designs will increasingly resemble neural processing units. Each new specialization (Tensor Cores, RT Cores, Transformer Engine, DPX) permanently reduced the general-purpose fraction.
+
+\textbf{3. Precision halving}: Numerical precision halves every $\sim$3 years (FP32 $\to$ FP16 $\to$ FP8 $\to$ FP4), enabled by ML workloads' inherent noise tolerance, quantization-aware training, and per-layer adaptive scaling. FP2 or binary networks may emerge by 2027--2028.
+
+\textbf{4. Memory-compute co-scaling}: Bandwidth grew $\sim$2x every 2--3 years, tracking compute growth to maintain compute-bound operation. The rising FLOPs/byte ratio (8 $\to$ 667) reflects both precision reduction and memory system improvements. Future bottlenecks will arise if memory scaling slows relative to compute.
+
+\textbf{5. Architectural invariants}: Core structures (SM organization, 32-thread warps, three-level memory hierarchy) remain stable, providing programming continuity across 15 years of architectural upheaval. CUDA programs written for Fermi run on Blackwell with minimal modification.
+
+The next fundamental bottleneck is \textbf{energy efficiency}: as data centers approach megawatt-scale power consumption and multi-trillion-parameter models require exaflop training, performance-per-watt becomes the primary constraint. Future architectures may require novel device physics (photonics, superconductors), algorithmic co-design (sparse MoE, state space models), or system-level redesign to sustain the scaling trajectory.
+
+\section*{Acknowledgments}
+
+This survey synthesizes information from NVIDIA architecture whitepapers, technical blogs, and academic publications on deep learning systems.
+
+\bibliography{references}
+\bibliographystyle{icml2026}
+
+\end{document}
