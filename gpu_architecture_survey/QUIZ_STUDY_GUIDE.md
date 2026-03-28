@@ -65,7 +65,7 @@
 - FP64 at 1/2 FP32 rate
 
 **Volta**: **Tensor Core** (becomes dominant)
-- 4 per SM, 640 total
+- 8 per SM, 640 total (80 SMs)
 - 4×4×4 matrix multiply-accumulate
 - FP16 input, FP32 accumulation
 
