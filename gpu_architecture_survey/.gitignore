@@ -1,2 +1,4 @@
 # OMC internal state files
 .omc/
+archive/
+**/.DS_Store
