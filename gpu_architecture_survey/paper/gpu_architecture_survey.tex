@@ -1,13 +1,33 @@
 \documentclass{article}
 
-% ICML 2024 style
-\usepackage{icml2024}
-\usepackage{hyperref}
-\usepackage{url}
-\usepackage{amsmath}
+% Recommended packages for figures and better typesetting
+\usepackage{microtype}
 \usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{booktabs}
-\usepackage{multirow}
+
+% hyperref makes hyperlinks in the resulting PDF
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review
+\usepackage{icml2026}
+
+% For preprint, use:
+% \usepackage[preprint]{icml2026}
+
+% If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2026}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+% if you use cleveref
+\usepackage[capitalize,noabbrev]{cleveref}
 
 \icmltitlerunning{GPU Architecture Evolution: A Bottleneck-Driven Survey}
 
@@ -761,6 +781,6 @@ Remember the causal chain: each generation solves the previous bottleneck while 
 This survey synthesizes information from NVIDIA architecture whitepapers, technical blogs, and academic publications on deep learning systems.
 
 \bibliography{references}
-\bibliographystyle{icml2024}
+\bibliographystyle{icml2026}
 
 \end{document}
