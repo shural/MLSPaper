@@ -17,7 +17,7 @@ Rubin (2026): ENERGY EFFICIENCY
 | **Volta** | 2017 | **Tensor Cores** | FP16/32 | 900 GB/s | 125 TF (TC) | GEMM throughput |
 | **Turing** | 2018 | INT8, RT Cores | INT8/4 | 616 GB/s | 130 TOPS | Inference |
 | **Ampere** | 2020 | Sparsity, TF32 | TF32/BF16 | 1.6 TB/s | 312 TF | Training speed |
-| **Hopper** | 2022 | **FP8, Trans Eng** | **FP8** | 3 TB/s | 2000 TF | Transformers |
+| **Hopper** | 2022 | **FP8, Trans Eng** | **FP8** | 3.35 TB/s | 2000 TF | Transformers |
 | **Blackwell** | 2024 | **FP4**, NVL72 | **FP4** | 8 TB/s | 4000+ TF | Inference cost |
 
 ## PRECISION EVOLUTION (halves every ~3 years)
@@ -58,7 +58,7 @@ FP32 (Fermi) → FP16 (Volta) → INT8 (Turing) → FP8 (Hopper) → FP4 (Blackw
 - 30% → 90% utilization in cloud
 
 ## MEMORY BANDWIDTH GROWTH
-177 GB/s → 900 GB/s (5x) → 1.6 TB/s (1.8x) → 3 TB/s (1.9x) → 8 TB/s (2.7x)
+177 GB/s → 900 GB/s (5x) → 1.6/2.039 TB/s (1.8x) → 3.35 TB/s (1.7x) → 8 TB/s (2.4x)
 **Pattern**: ~2x every 2-3 years
 
 ## DOMINANT COMPUTE UNIT

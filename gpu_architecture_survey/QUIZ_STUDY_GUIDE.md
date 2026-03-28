@@ -10,8 +10,8 @@
 | **Fermi** | 2010 | Cache hierarchy, ECC | FP32/FP64 | 177 GB/s | HPC reliability | Matrix multiply throughput |
 | **Volta** | 2017 | **Tensor Cores (1st gen)** | FP16/FP32 | 900 GB/s | GEMM throughput | Memory capacity |
 | **Turing** | 2018 | INT8/INT4 Tensor Cores, RT Cores | INT8/INT4/FP16 | 616 GB/s | Inference efficiency | Training throughput |
-| **Ampere** | 2020 | Sparsity, TF32, MIG | TF32/BF16/FP64TC | 1.6 TB/s | Training speed, multi-tenancy | Transformer attention |
-| **Hopper** | 2022 | **Transformer Engine**, FP8 | **FP8** (E4M3/E5M2) | 3 TB/s | Transformer-specific | Inference scale |
+| **Ampere** | 2020 | Sparsity, TF32, MIG | TF32/BF16/FP64TC | 1.6/2.039 TB/s | Training speed, multi-tenancy | Transformer attention |
+| **Hopper** | 2022 | **Transformer Engine**, FP8 | **FP8** (E4M3/E5M2) | 3.35 TB/s | Transformer-specific | Inference scale |
 | **Blackwell** | 2024 | **FP4**, dual-die, NVL72 | **FP4**/FP6/FP8 | 8 TB/s | Inference capacity/cost | Energy efficiency |
 | **Rubin** | 2026 | (Projected) Sub-FP4?, energy-efficient | FP2? Binary? | 10+ TB/s | Energy/power | Physical limits |
 
@@ -131,7 +131,7 @@
 **Hopper (2022)**
 - L1/Shared: 256 KB per SM
 - L2: 50 MB
-- **HBM3**: 3 TB/s, 80 GB (first HBM3 GPU)
+- **HBM3**: 3.35 TB/s, 80 GB (first HBM3 GPU)
 - **TMA** (Tensor Memory Accelerator)
 
 **Blackwell (2024)**
@@ -235,7 +235,7 @@ FP32 → FP16 → INT8 → TF32/BF16 → FP8 → FP4 → FP2?
 | Fermi | 1.5 FP32 | 177 GB/s | PCIe 2.0: 8 GB/s | ~8.5 |
 | Volta | 125 FP16 (TC) | 900 GB/s | NVLink 2.0: 300 GB/s | ~139 |
 | Ampere | 312 FP16 (TC) | 1.6 TB/s | NVLink 3.0: 600 GB/s | ~195 |
-| Hopper | 2000 FP8 (TC) | 3 TB/s | NVLink 4.0: 900 GB/s | ~667 |
+| Hopper | 2000 FP8 (TC) | 3.35 TB/s | NVLink 4.0: 900 GB/s | ~597 |
 | Blackwell | ~4000 FP8 (est) | 8 TB/s | NVLink 5.0: 1.8 TB/s | ~500 |
 
 **Pattern**: Compute grows faster than memory initially, then balances. Interconnect grows to support multi-GPU scaling.
@@ -425,8 +425,8 @@ Future: Physical limits (CMOS, cooling, power density)
 | Fermi | GDDR5 | 6 GB | 177 GB/s | 768 KB |
 | Volta | HBM2 | 16/32 GB | 900 GB/s | 6 MB |
 | Turing | GDDR6 | 11 GB | 616 GB/s | 6 MB |
-| Ampere | HBM2e | 40/80 GB | 1.6 TB/s | **40 MB** |
-| Hopper | **HBM3** | 80 GB | 3 TB/s | 50 MB |
+| Ampere | HBM2e | 40/80 GB | 1.6/2.039 TB/s | **40 MB** |
+| Hopper | **HBM3** | 80 GB | 3.35 TB/s | 50 MB |
 | Blackwell | HBM3e | **192 GB** | **8 TB/s** | — |
 
 ---

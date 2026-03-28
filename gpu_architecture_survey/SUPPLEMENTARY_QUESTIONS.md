@@ -13,7 +13,7 @@
 | **Fermi** | 1.5 | 0.177 | **8.5 FLOPs/byte** | Cache hierarchy introduction |
 | **Volta** | 125 (TC) | 0.9 | **139 FLOPs/byte** | 16x increase! HBM2 + large L2 |
 | **Ampere** | 312 (TC) | 1.6 | **195 FLOPs/byte** | 40MB L2 cache, data compression |
-| **Hopper** | 2000 (FP8) | 3.0 | **667 FLOPs/byte** | TMA, 50MB L2, async pipelines |
+| **Hopper** | 2000 (FP8) | 3.35 | **597 FLOPs/byte** | TMA, 50MB L2, async pipelines |
 | **Blackwell** | 4000+ (FP4 est) | 8.0 | **500 FLOPs/byte** | Decompression engine, Grace link |
 
 ### Data Movement Cost Reduction Strategies by Generation:
@@ -40,7 +40,7 @@
 - **Tensor Memory Accelerator**: Hardware-managed tensor transfers
 - **Async pipelines**: Overlap data movement with compute (hide latency completely)
 - **50MB L2**: Caches even larger model chunks
-- **667 FLOPs/byte**: Massively compute-bound, memory almost irrelevant for Tensor Core ops
+- **597 FLOPs/byte**: Massively compute-bound, memory almost irrelevant for Tensor Core ops
 
 **Blackwell (2024)**: Decompression + Grace link
 - **Hardware decompression**: LZ4/Snappy in silicon (3-4x data reduction)
@@ -48,7 +48,7 @@
 - **On-chip network**: 130 TB/s in NVL72 (inter-GPU data movement)
 
 ### Key Insight:
-**Trend**: Arithmetic intensity grew ~80x (8.5 → 667) while memory bandwidth grew ~17x (177 GB/s → 3 TB/s). GPUs became increasingly **compute-bound**, making Tensor Cores the bottleneck, not memory.
+**Trend**: Arithmetic intensity grew ~70x (8.5 → 597) while memory bandwidth grew ~19x (177 GB/s → 3.35 TB/s). GPUs became increasingly **compute-bound**, making Tensor Cores the bottleneck, not memory.
 
 ---
 
@@ -829,7 +829,7 @@ Mamba: O(n) state evolution (matrix-vector!)
 - Target: ~100-200 FLOPs/byte for compute-bound
 - Fermi: 8.5 FLOPs/byte → **memory-bound**
 - Volta: 139 FLOPs/byte → **balanced**
-- Hopper: 667 FLOPs/byte → **compute-bound**
+- Hopper: 597 FLOPs/byte → **compute-bound**
 - **Implication**: Memory bandwidth must grow ~2x every 2-3 years
 
 #### **Principle 4: Automate What Programmers Do Manually**
