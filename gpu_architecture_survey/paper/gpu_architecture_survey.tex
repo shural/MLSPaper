@@ -176,7 +176,7 @@ Volta (GV100) directly addressed this bottleneck with \textbf{Tensor Cores}—sp
 
 \subsection{Tensor Cores: A New Computational Primitive}
 
-Volta's revolutionary innovation was making Tensor Cores the \textit{dominant computational unit}. Each SM contained \textbf{4 Tensor Cores}, with 640 total in V100. Each Tensor Core performs a $4 \times 4 \times 4$ matrix multiply-accumulate per clock:
+Volta's revolutionary innovation was making Tensor Cores the \textit{dominant computational unit}. Each SM contained \textbf{8 Tensor Cores}, with 640 total in V100 (80 SMs). Each Tensor Core performs a $4 \times 4 \times 4$ matrix multiply-accumulate per clock:
 \begin{equation}
 D = A \times B + C
 \end{equation}
@@ -365,7 +365,7 @@ This resolved the multi-tenancy bottleneck, improving utilization from ~30\% to 
 
 A100's memory hierarchy addressed the capacity bottleneck:
 \begin{itemize}
-\item \textbf{HBM2e}: 40/80GB (2.5x V100), 1.6 TB/s bandwidth
+\item \textbf{HBM2e}: 40GB (1.6 TB/s) or 80GB (2.0 TB/s), up to 2.5x V100 capacity
 \item \textbf{L2 Cache}: 40MB (6.7x V100)—massive on-chip memory
 \item \textbf{Compute data compression}: Reduces effective bandwidth requirements
 \end{itemize}
