@@ -19,6 +19,7 @@ Rubin (2026): ENERGY EFFICIENCY
 | **Ampere** | 2020 | Sparsity, TF32 | TF32/BF16 | 1.6 TB/s | 312 TF | Training speed |
 | **Hopper** | 2022 | **FP8, Trans Eng** | **FP8** | 3.35 TB/s | 2000 TF | Transformers |
 | **Blackwell** | 2024 | **FP4**, NVL72 | **FP4** | 8 TB/s | 4000+ TF | Inference cost |
+| **Rubin** | 2026 | **3nm, HBM4, Optical** | **FP2** (est) | 10+ TB/s | 8000+ TF | Energy efficiency |
 
 ## PRECISION EVOLUTION (halves every ~3 years)
 FP32 (Fermi) → FP16 (Volta) → INT8 (Turing) → FP8 (Hopper) → FP4 (Blackwell) → FP2? (Rubin)
@@ -29,6 +30,7 @@ FP32 (Fermi) → FP16 (Volta) → INT8 (Turing) → FP8 (Hopper) → FP4 (Blackw
 - **Gen 3 (Ampere)**: +TF32, +BF16, +FP64TC, +**Sparsity (2:4)**
 - **Gen 4 (Hopper)**: +**FP8** (E4M3/E5M2), **Transformer Engine**
 - **Gen 5 (Blackwell)**: +**FP4** (NVFP4), 2x attention (Ultra)
+- **Gen 6 (Rubin, est)**: +**FP2/Binary**, Multimodal Engine, block sparsity
 
 ## KEY CONCEPTS
 
@@ -58,8 +60,8 @@ FP32 (Fermi) → FP16 (Volta) → INT8 (Turing) → FP8 (Hopper) → FP4 (Blackw
 - 30% → 90% utilization in cloud
 
 ## MEMORY BANDWIDTH GROWTH
-177 GB/s → 900 GB/s (5x) → 1.6/2.039 TB/s (1.8x) → 3.35 TB/s (1.7x) → 8 TB/s (2.4x)
-**Pattern**: ~2x every 2-3 years
+177 GB/s → 900 GB/s (5x) → 1.6/2.039 TB/s (1.8x) → 3.35 TB/s (1.7x) → 8 TB/s (2.4x) → 10+ TB/s (1.3x)
+**Pattern**: ~2x every 2-3 years (HBM2 → HBM2e → HBM3 → HBM3e → HBM4)
 
 ## DOMINANT COMPUTE UNIT
 - **Fermi**: CUDA Core (scalar ALU)
@@ -110,6 +112,7 @@ FP32 (Fermi) → FP16 (Volta) → INT8 (Turing) → FP8 (Hopper) → FP4 (Blackw
 - V3 (Ampere): 600 GB/s (2x)
 - V4 (Hopper): 900 GB/s (1.5x)
 - V5 (Blackwell): 1.8 TB/s (2x)
+- V6 (Rubin, est): Optical interconnect (10+ TB/s, 5x+)
 
 ## WORKLOAD MAPPING
 - **Fermi**: HPC (not ML)
@@ -118,6 +121,7 @@ FP32 (Fermi) → FP16 (Volta) → INT8 (Turing) → FP8 (Hopper) → FP4 (Blackw
 - **Ampere**: Large transformers (GPT-3 175B)
 - **Hopper**: Trillion-param models (GPT-4 scale)
 - **Blackwell**: Agentic AI, reasoning (o1-style)
+- **Rubin**: 10T+ multimodal, sustainable AI, test-time compute
 
 ## MEMORY TRICKS
 - **"VTATHABR"**: Volta, Turing, Ampere, Hopper, Blackwell, Rubin

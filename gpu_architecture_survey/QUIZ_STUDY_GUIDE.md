@@ -237,6 +237,7 @@ FP32 → FP16 → INT8 → TF32/BF16 → FP8 → FP4 → FP2?
 | Ampere | 312 FP16 (TC) | 1.6 TB/s | NVLink 3.0: 600 GB/s | ~195 |
 | Hopper | 2000 FP8 (TC) | 3.35 TB/s | NVLink 4.0: 900 GB/s | ~597 |
 | Blackwell | ~4000 FP8 (est) | 8 TB/s | NVLink 5.0: 1.8 TB/s | ~500 |
+| Rubin | ~8000+ FP4 (est) | 10+ TB/s (HBM4) | NVLink 6 | ~800+ |
 
 **Pattern**: Compute grows faster than memory initially, then balances. Interconnect grows to support multi-GPU scaling.
 
@@ -273,6 +274,12 @@ FP32 → FP16 → INT8 → TF32/BF16 → FP8 → FP4 → FP2?
 - Reasoning models (o1-style): 50x better
 - MoE models, long-context (100K+ tokens)
 - 30x inference speedup vs Hopper
+
+**Rubin (2026)**: Multi-trillion parameter, multimodal reasoning
+- 10T+ parameter models (test-time compute scaling)
+- Real-time multimodal AI (vision, language, audio fusion)
+- 3-5x performance-per-watt vs Blackwell
+- Energy-constrained extreme-scale training/inference
 
 ---
 
@@ -311,6 +318,7 @@ Future: Physical limits (CMOS, cooling, power density)
 - **Gen 3 (Ampere)**: +TF32, +BF16, +FP64, +Sparsity
 - **Gen 4 (Hopper)**: +FP8 (E4M3/E5M2), Transformer Engine
 - **Gen 5 (Blackwell)**: +FP4 (NVFP4), 2x attention (Ultra)
+- **Gen 6 (Rubin)**: Enhanced FP4 training, 3rd-gen Transformer Engine
 
 ### 2. Precision Formats
 - **FP32**: 8-bit exp, 23-bit mantissa
@@ -322,7 +330,7 @@ Future: Physical limits (CMOS, cooling, power density)
 - **FP4**: 4 bits total with micro-scaling
 
 ### 3. Memory Bandwidth Growth
-177 GB/s (Fermi) → 900 GB/s (Volta, 5x) → 1.6 TB/s (Ampere, 1.8x) → 3 TB/s (Hopper, 1.9x) → 8 TB/s (Blackwell, 2.7x)
+177 GB/s (Fermi) → 900 GB/s (Volta, 5x) → 1.6 TB/s (Ampere, 1.8x) → 3.35 TB/s (Hopper, 2.1x) → 8 TB/s (Blackwell, 2.4x) → 10+ TB/s (Rubin, HBM4, 1.3x+)
 
 **Pattern**: ~2x every 2-3 years
 
@@ -333,6 +341,7 @@ Future: Physical limits (CMOS, cooling, power density)
 - **Ampere**: Structured sparsity (2:4), TF32, MIG
 - **Hopper**: FP8, Transformer Engine, Thread Block Clusters
 - **Blackwell**: FP4, dual-die, NVL72
+- **Rubin**: 3nm process, HBM4, 3-5x perf/watt, 3rd-gen Transformer Engine
 
 ### 5. Sparsity (Ampere)
 - **2:4 structured**: Of every 4 values, exactly 2 are zero
@@ -417,6 +426,7 @@ Future: Physical limits (CMOS, cooling, power density)
 | Ampere | 19.5 (TC) | 19.5 | 312 | 624 | — | — |
 | Hopper | 60 (TC) | 60 | 1000 | 2000 | **2000** | — |
 | Blackwell | — | — | — | — | 4000+ | **8000+** |
+| Rubin | — | — | — | — | 8000+ (est) | **16000+ (est)** |
 
 ### Memory Specifications
 
@@ -428,6 +438,7 @@ Future: Physical limits (CMOS, cooling, power density)
 | Ampere | HBM2e | 40/80 GB | 1.6/2.039 TB/s | **40 MB** |
 | Hopper | **HBM3** | 80 GB | 3.35 TB/s | 50 MB |
 | Blackwell | HBM3e | **192 GB** | **8 TB/s** | — |
+| Rubin | **HBM4** | **256+ GB (est)** | **10+ TB/s** | — |
 
 ---
 
