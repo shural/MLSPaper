@@ -1,0 +1,132 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774679430193,
+  "projectRoot": "/Users/media/MLSPaper",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "MSLPaper": {
+      "path": "MSLPaper",
+      "purpose": null,
+      "fileCount": 10,
+      "lastAccessed": 1774679430183,
+      "keyFiles": [
+        "MSLPaper.tex",
+        "algorithm.sty",
+        "algorithmic.sty",
+        "example_paper.bib",
+        "example_paper.pdf"
+      ]
+    },
+    "gpu_architecture_survey": {
+      "path": "gpu_architecture_survey",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1774679430183,
+      "keyFiles": [
+        "ONE_PAGE_CHEATSHEET.md",
+        "QUESTION_COVERAGE_ANALYSIS.md",
+        "QUIZ_STUDY_GUIDE.md",
+        "README.md",
+        "SUPPLEMENTARY_QUESTIONS.md"
+      ]
+    },
+    "out": {
+      "path": "out",
+      "purpose": "Build output",
+      "fileCount": 7,
+      "lastAccessed": 1774679430183,
+      "keyFiles": [
+        "example_paper.aux",
+        "example_paper.bbl",
+        "example_paper.blg",
+        "example_paper.log",
+        "example_paper.out"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "gpu_architecture_survey/paper/gpu_architecture_survey_optionB.tex",
+      "accessCount": 88,
+      "lastAccessed": 1774687942761,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/paper/gpu_architecture_survey_optionA.tex",
+      "accessCount": 13,
+      "lastAccessed": 1774685607885,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/paper/gpu_architecture_survey.tex",
+      "accessCount": 6,
+      "lastAccessed": 1774683742355,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/paper/references.bib",
+      "accessCount": 4,
+      "lastAccessed": 1774687253487,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/SESSION_SUMMARY.md",
+      "accessCount": 1,
+      "lastAccessed": 1774680014679,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/TRIMMING_OPTIONS.md",
+      "accessCount": 1,
+      "lastAccessed": 1774682915856,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/TRIMMING_OPTIONS_V2.md",
+      "accessCount": 1,
+      "lastAccessed": 1774683276015,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/VALIDATION_RESULTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1774685143719,
+      "type": "file"
+    },
+    {
+      "path": "gpu_architecture_survey/FINAL_VALIDATION_SUMMARY.md",
+      "accessCount": 1,
+      "lastAccessed": 1774686226048,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

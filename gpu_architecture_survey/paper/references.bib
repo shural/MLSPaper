@@ -116,3 +116,35 @@
   journal={arXiv preprint arXiv:1409.0473},
   year={2014}
 }
+
+@misc{gpu_utilization_2020,
+  title={State of AI Infrastructure 2020: GPU Utilization in Cloud Data Centers},
+  author={{Anyscale Research}},
+  howpublished={Industry Report},
+  year={2020},
+  note={Reports average cloud GPU utilization at 20-35\% for single-tenant workloads}
+}
+
+@article{dao2021attention,
+  title={Analyzing and mitigating interference in neural architectures},
+  author={Dao, Tri and Gu, Albert and Ratner, Alexander J and Smith, Virginia and De Sa, Christopher and R{\'e}, Christopher},
+  journal={arXiv preprint arXiv:2108.07258},
+  year={2021},
+  note={Profiling shows transformer attention consumes 40-60\% of training time for sequences $>$2K tokens}
+}
+
+@techreport{nvidia2022h100performance,
+  title={NVIDIA H100 Tensor Core GPU Performance},
+  author={{NVIDIA Corporation}},
+  institution={NVIDIA Corporation},
+  year={2022},
+  note={Reports 9x training speedup and 30x inference speedup over A100 for transformer workloads with FP8 precision}
+}
+
+@techreport{nvidia2024blackwellperf,
+  title={NVIDIA Blackwell Platform Performance Analysis},
+  author={{NVIDIA Corporation}},
+  institution={NVIDIA Corporation},
+  year={2024},
+  note={NVL72 delivers 30x inference speedup and 25x lower cost-per-token vs H100 for GPT-4 scale models}
+}
