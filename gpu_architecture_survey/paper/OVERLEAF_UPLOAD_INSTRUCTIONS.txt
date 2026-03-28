@@ -1,0 +1,77 @@
+OVERLEAF UPLOAD INSTRUCTIONS
+============================
+
+Two packages have been created for Overleaf:
+
+1. gpu_survey_optionA_overleaf.zip (Option A - Concise version, 5 pages)
+2. gpu_survey_optionB_overleaf.zip (Option B - Comprehensive version, 8 pages)
+
+UPLOAD INSTRUCTIONS:
+--------------------
+
+1. Go to Overleaf (https://www.overleaf.com)
+2. Click "New Project" → "Upload Project"
+3. Select either gpu_survey_optionA_overleaf.zip or gpu_survey_optionB_overleaf.zip
+4. Wait for upload to complete
+5. The project will open automatically
+
+PACKAGE CONTENTS:
+-----------------
+
+Both packages contain:
+- gpu_architecture_survey_optionA.tex (or optionB.tex) - Main LaTeX file
+- icml2026.sty - ICML 2026 style file
+- icml2026.bst - ICML bibliography style
+- references.bib - Bibliography database
+- fancyhdr.sty - Header/footer formatting
+- algorithm.sty - Algorithm environment
+- algorithmic.sty - Algorithmic typesetting
+
+COMPILATION:
+------------
+
+Overleaf will automatically detect the main .tex file and compile it.
+The document uses pdflatex and bibtex:
+
+1. pdflatex (compile)
+2. bibtex (process bibliography)
+3. pdflatex (resolve references)
+4. pdflatex (final compile)
+
+Overleaf handles this automatically.
+
+AUTHORS:
+--------
+
+The papers now include proper author information:
+- Heng Xiong (25300130028@m.fudan.edu.cn), Fudan University, Shanghai, China
+- Claude, Anthropic
+
+Both authors marked with equal contribution.
+
+DOCUMENT DIFFERENCES:
+---------------------
+
+Option A (5 pages without references):
+- Concise, focused on key transitions
+- 3 tables (Volta, Blackwell, Bandwidth)
+- Optimized for brevity
+
+Option B (8 pages without references):
+- Comprehensive, detailed analysis
+- 8 tables covering all generations
+- Full architectural evolution coverage
+
+TROUBLESHOOTING:
+----------------
+
+If compilation fails:
+1. Check that all .sty files are present
+2. Ensure icml2026.sty is in the same directory as the .tex file
+3. Try compiling with pdflatex manually
+4. Check the log for missing packages
+
+For questions or issues, contact:
+Heng Xiong: 25300130028@m.fudan.edu.cn
+
+Last Updated: 2026-03-28
