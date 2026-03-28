@@ -1,0 +1,50 @@
+@Mention All Homework #1: Please write a serious, publishable-quality survey to present the technology roadmap covering Ferm, Volta, Turing, Ampere, Hopper, Blackwell, Rubin,  in the form of a causal, bottleneck-driven evolution of GPU architecture under ML workload pressure. The article shall cover the following questions. You may work with AI (e.g., deep research) in any form. On the other hand, you need to fully understand the content, as we will have a first in-class close-computer/phone quiz this coming Tuesday. 
+
+1.	What fundamental workload shift drove each architectural transition, and what bottleneck did it resolve?
+2.	What is the dominant unit of computation in each generation, and how did it evolve (e.g., scalar ALU → Tensor Core → model-aware primitives)?
+3.	How does each architecture balance general-purpose compute versus specialized acceleration?
+4.	How did the memory hierarchy and data movement mechanisms evolve, and which bottlenecks do they address?
+5.	How does the parallel execution and scheduling model evolve across generations?
+6.	How does numerical precision evolve, and what workload assumptions justify reduced precision?
+7.	What is the dominant performance bottleneck in each generation (compute, memory, scheduling, or communication)?
+8.	How do compute throughput, memory bandwidth, and interconnect bandwidth scale relative to each other?
+9.	How does each architecture map to the dominant machine learning workload of its time?
+10.	What architectural invariants persist, and what new bottleneck must Rubin (and beyond) solve?
+
+ICML template, 8pages (excluding referneces). Deadline: Mar. 31 8am.
+
+@Mention All Quiz #1: March 31, 8:00–9:00 AM. This is an in-class quiz. Closed book—no computers, phones, or AI assistance are allowed. Preparing a high-quality survey article will help you be well prepared.
+
+
+@Mention All In addition, the following 30 questions may help you prepare the upcoming quiz. 
+ @Mention All the following 30 questions may help you prepare the upcoming quiz: 
+1.	What fundamental workload shift drove each architectural transition, and what bottleneck did it resolve?
+2.	What is the dominant unit of computation in each generation (e.g., scalar FMA, MMA, attention primitives), and how did it evolve?
+3.	How does each architecture balance general-purpose compute (CUDA cores) versus specialized compute (Tensor Cores or beyond)?
+4.	How did the memory hierarchy evolve (L1/shared memory, L2, HBM), and what bottleneck in data movement does each change address?
+5.	How does each generation reduce the cost of data movement relative to compute?
+6.	What mechanisms are introduced for explicit data orchestration (e.g., software-managed tiling, async copy, tensor memory pipelines)?
+7.	How does the parallel execution model evolve (warp scheduling, thread independence, SM organization)?
+8.	What assumptions does each architecture make about latency hiding versus throughput maximization?
+9.	How does numerical precision evolve (FP32 → FP16 → BF16 → TF32 → FP8), and what workload assumptions justify this evolution?
+10.	What implicit error model or tolerance to noise is assumed by each generation’s numerical design?
+11.	To what extent does each generation move from general-purpose architecture toward domain-specific acceleration?
+12.	At what point does the architecture begin to encode model structure (e.g., matrix multiply → transformer-aware execution)?
+13.	How does interconnect architecture evolve (PCIe, NVLink, NVSwitch), and when does communication become a first-order bottleneck?
+14.	At which generation does the system boundary shift from single GPU to multi-GPU node to cluster-scale system?
+15.	How does the software stack (CUDA, libraries, compilers) evolve to expose new hardware capabilities?
+16.	Which hardware features require new programming abstractions, and which remain backward compatible?
+17.	What is the dominant performance bottleneck in each generation (compute, memory, scheduling, communication)?
+18.	How do compute throughput, memory bandwidth, and interconnect bandwidth scale relative to each other across generations?
+19.	Is the system becoming increasingly compute-bound or bandwidth-bound, and how does this shift over time?
+20.	How does each architecture map to the dominant ML workload of its time (CNNs, RNNs, Transformers, LLMs)?
+21.	Which hardware features directly correspond to key ML operations (e.g., convolution, matrix multiply, attention, routing)?
+22.	How does sparsity (structured or unstructured) emerge as a first-class design consideration?
+23.	What new bottlenecks are introduced by each architectural improvement?
+24.	What architectural invariants persist across all generations despite changes in workload?
+25.	What assumptions about future workloads are implicitly encoded in Blackwell and Rubin?
+26.	Will matrix multiplication (GEMM/MMA) remain the dominant abstraction, or be replaced by higher-level primitives?
+27.	How might future architectures integrate compute, memory, and communication into a unified execution model?
+28.	Is the GPU evolving into a domain-specific accelerator for AI, and if so, what remains of its general-purpose nature?
+29.	What is the minimal set of architectural principles that explains the entire roadmap from Fermi to Rubin?
+30.	What is the next fundamental bottleneck that Rubin (and beyond) must solve?
