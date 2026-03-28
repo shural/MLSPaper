@@ -148,7 +148,7 @@ FP16's $\pm 65504$ range suffices with loss scaling, halving memory footprint an
 \end{itemize}
 At 900 GB/s, compute-to-bandwidth reached $\sim$139 FLOPs/byte, making ML workloads compute-bound rather than bandwidth-bound. The 5x bandwidth increase was essential—125 TFLOPS of Tensor Core throughput would be memory-starved at Fermi's 177 GB/s.
 
-\textbf{Parallel execution}: Volta introduced independent thread scheduling, departing from lockstep warp execution. Threads within a warp can now diverge and reconverge at sub-warp granularity, enabling fine-grained synchronization primitives and more efficient handling of irregular control flow. Each SM supported up to 64 warps (2048 threads), a significant increase from prior architectures, enabling finer-grained occupancy and latency hiding.
+\textbf{Parallel execution}: Volta introduced independent thread scheduling with per-thread program counters. While threads within a warp could always diverge, Volta's new scheduler allows the GPU to pause diverging warps and schedule other ready warps more efficiently, improving utilization on code with irregular control flow and enabling fine-grained synchronization primitives. Each SM supported up to 64 warps (2048 threads), a significant increase from prior architectures, enabling finer-grained occupancy and latency hiding.
 
 \textbf{Multi-GPU communication}: NVLink 2.0 provided 300 GB/s bidirectional bandwidth per GPU, enabling model parallelism for models that exceeded single-GPU memory. This became essential as early transformer models (BERT-Large 340M, GPT-2 1.5B) approached or exceeded the 16/32 GB capacity.
 
@@ -343,7 +343,7 @@ Compute/bandwidth & $\sim$597 FLOPs/byte (FP8) \\
 
 \textbf{Impact}: H100 delivers 9x training speedup and 30x inference speedup over A100. GPT-4 scale training became feasible within realistic time budgets; long-context transformers (32K+ tokens) became practical. The Transformer Engine's automatic FP8 selection eliminated manual per-layer tuning. At $\sim$597 FLOPs/byte, workloads became extremely compute-bound, justifying the investment in Tensor Core throughput over bandwidth.
 
-\textbf{Remaining bottleneck}: Attention's $O(n^2)$ complexity persists even at FP8; FlashAttention \cite{dao2022flashattention} provides algorithmic relief but architectural support for attention sparsity remains absent. Inference at trillion-parameter scale for real-time serving at scale requires a new optimization target.
+\textbf{Remaining bottleneck}: Attention's $O(n^2)$ complexity persists even at FP8; FlashAttention \cite{dao2022flashattention} provides algorithmic relief by avoiding materialization of the large $n^2$ attention matrix in HBM, instead computing attention outputs in smaller chunks using faster on-chip SRAM, but architectural support for attention sparsity remains absent. Inference at trillion-parameter scale for real-time serving at scale requires a new optimization target.
 
 % ============================================================
 % BLACKWELL: target 75 lines
@@ -369,7 +369,7 @@ Blackwell (GB100/GB200) introduces two architectural advances \cite{nvidia2024bl
 
 \textbf{NVL72 rack-scale configuration}: 72 GPUs in a single NVLink domain operating as one logical GPU with 130 TB/s aggregate bandwidth. This shifts the unit of computation from individual GPU to entire rack—NVL72 can serve trillion-parameter models with single-digit millisecond latency.
 
-\textbf{Decompression engine}: LZ4, Snappy, and Deflate decompression in hardware accelerates data analytics pipelines without CPU involvement.
+\textbf{Decompression engine}: Hardware-accelerated LZ4, Snappy, and Deflate decompression offloads common data processing tasks from the CPU, accelerating database queries and analytics pipelines. This reflects the GPU's evolution into a comprehensive data center accelerator, reducing data movement and improving end-to-end pipeline throughput.
 
 \textbf{RAS Engine}: AI-powered fault prediction monitors thousands of hardware data points, minimizing downtime in large-scale AI factories. As GPU deployments scale to tens of thousands, reliability becomes an architectural requirement.
 
@@ -377,7 +377,7 @@ Blackwell (GB100/GB200) introduces two architectural advances \cite{nvidia2024bl
 
 \textbf{Performance scaling}: Blackwell's improvements relative to H100:
 \begin{itemize}
-\item Memory bandwidth: 8 TB/s vs.\ 3.35 TB/s = 2.7x
+\item Memory bandwidth: 8 TB/s vs.\ 3.35 TB/s = 2.4x
 \item Memory capacity: 192 GB vs.\ 80 GB = 2.4x
 \item Transistors: 208B vs.\ 80B = 2.6x (enabled by dual-die)
 \item NVL72 inference: 30x speedup over H100 for GPT-4 scale models
@@ -392,8 +392,8 @@ Blackwell (GB100/GB200) introduces two architectural advances \cite{nvidia2024bl
 Metric & Value \\
 \midrule
 Transistors & 208B (dual-die) \\
-FP8 throughput & 10 PFLOPS (5x H100) \\
-FP4 throughput & 20 PFLOPS (10x H100 FP8) \\
+FP8 (sparse) & 10 PFLOPS (2.5x H100 sparse) \\
+FP4 (sparse) & 20 PFLOPS \\
 Memory bandwidth & 8 TB/s \\
 Memory capacity & 192 GB HBM3e \\
 Chip-to-chip link & 10 TB/s (NVLink-C2C) \\
@@ -478,11 +478,11 @@ Simultaneously, the general-purpose fraction of compute declined: Fermi (100\%) 
 \toprule
 Generation & Bandwidth & vs.\ Prior & Compute/BW \\
 \midrule
-Fermi (2010) & 177 GB/s & — & $\sim$8 FLOPs/B \\
+Fermi (2010) & 177 GB/s & — & $\sim$8.5 FLOPs/B \\
 Volta (2017) & 900 GB/s & 5.1x & $\sim$139 FLOPs/B \\
 Ampere (2020) & 1.6 TB/s & 1.8x & $\sim$195 FLOPs/B \\
-Hopper (2022) & 3.35 TB/s & 1.9x & $\sim$667 FLOPs/B \\
-Blackwell (2024) & 8 TB/s & 2.7x & — \\
+Hopper (2022) & 3.35 TB/s & 2.1x & $\sim$597 FLOPs/B \\
+Blackwell (2024) & 8 TB/s & 2.4x & $\sim$2500 FLOPs/B \\
 \bottomrule
 \end{tabular}
 \caption{Memory bandwidth growth. Compute/BW at primary ML precision.}
@@ -507,7 +507,7 @@ This survey examined GPU architecture evolution through a bottleneck-driven lens
 
 \textbf{3. Precision halving}: Numerical precision halves every $\sim$3 years (FP32 $\to$ FP16 $\to$ FP8 $\to$ FP4), enabled by ML workloads' inherent noise tolerance, quantization-aware training, and per-layer adaptive scaling. FP2 or binary networks may emerge by 2027--2028.
 
-\textbf{4. Memory-compute co-scaling}: Bandwidth grew $\sim$2x every 2--3 years, tracking compute growth to maintain compute-bound operation. The rising FLOPs/byte ratio (8 $\to$ 667) reflects both precision reduction and memory system improvements. Future bottlenecks will arise if memory scaling slows relative to compute.
+\textbf{4. Memory-compute co-scaling}: Bandwidth grew $\sim$2x every 2--3 years, tracking compute growth to maintain compute-bound operation. The rising FLOPs/byte ratio (8 $\to$ 597 $\to$ 2500) reflects both precision reduction and memory system improvements. Future bottlenecks will arise if memory scaling slows relative to compute.
 
 \textbf{5. Architectural invariants}: Core structures (SM organization, 32-thread warps, three-level memory hierarchy) remain stable, providing programming continuity across 15 years of architectural upheaval. CUDA programs written for Fermi run on Blackwell with minimal modification.
 
