@@ -223,7 +223,7 @@ See **QUIZ/COMPLETE_30_QUESTIONS_INDEX.md** for question-to-file mapping.
 | **Ampere** | 2020 | Sparsity, TF32 | TF32/BF16 | 1.6 TB/s | Training speed |
 | **Hopper** | 2022 | **FP8, Trans Eng** | **FP8** | 3.35 TB/s | Transformers |
 | **Blackwell** | 2024 | **FP4**, NVL72 | **FP4** | 8 TB/s | Inference cost |
-| **Rubin** | 2026 | 3nm, HBM4, Optical | **FP2** (est) | 10+ TB/s | Energy efficiency |
+| **Rubin** | 2026 | 3nm, HBM4, NVLink 6 | **NVFP4** | 22 TB/s | Energy efficiency |
 
 ---
 
@@ -252,8 +252,9 @@ Blackwell (2024): Inference scale/cost bottleneck
     ↓ FP4 + NVL72 reduce inference cost/token
     ↓ But energy efficiency becomes limiting factor
 
-Rubin (2026): Energy efficiency bottleneck
-    ↓ 3nm + optical interconnect + 3-5x perf/watt
+Rubin (2026): Energy efficiency & inference cost bottleneck
+    ↓ 3nm + HBM4 (22 TB/s) + 50 PFLOPS NVFP4 (5x Blackwell)
+    ↓ 10x lower token cost, 336B transistors
     ↓ Next: ???
 ```
 

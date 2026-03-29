@@ -13,7 +13,7 @@
 | **Ampere** | 2020 | Sparsity, TF32, MIG | TF32/BF16/FP64TC | 1.6/2.039 TB/s | Training speed, multi-tenancy | Transformer attention |
 | **Hopper** | 2022 | **Transformer Engine**, FP8 | **FP8** (E4M3/E5M2) | 3.35 TB/s | Transformer-specific | Inference scale |
 | **Blackwell** | 2024 | **FP4**, dual-die, NVL72 | **FP4**/FP6/FP8 | 8 TB/s | Inference capacity/cost | Energy efficiency |
-| **Rubin** | 2026 | (Projected) Sub-FP4?, energy-efficient | FP2? Binary? | 10+ TB/s | Energy/power | Physical limits |
+| **Rubin** | 2026 | 336B transistors, HBM4, NVLink 6 | **NVFP4** | 22 TB/s | Energy efficiency | Sustainable AI scaling |
 
 ---
 
@@ -52,9 +52,9 @@
 - **Solution**: FP4 precision, dual-die design, NVL72 (72 GPU rack)
 
 **Rubin (2026)**
-- **Shift**: 10T+ params, multimodal, reasoning models
-- **Bottleneck**: **Energy efficiency** (data center power limits)
-- **Solution**: (Projected) Novel device physics, optical interconnects
+- **Shift**: 10T+ params, massive-context inference, multimodal reasoning
+- **Bottleneck**: **Energy efficiency** & inference token cost
+- **Solution**: 3nm process, HBM4 (22 TB/s), 50 PFLOPS NVFP4 inference (5x Blackwell)
 
 ---
 
@@ -87,8 +87,10 @@
 - 2x attention acceleration (Ultra)
 - 208B transistors (dual-die)
 
-**Rubin**: (Projected) Tensor Core Gen 6
-- FP2/binary? Specialized attention units?
+**Rubin**: Tensor Core Gen 6
+- **NVFP4** precision (50 PFLOPS inference, 35 PFLOPS training)
+- 336 billion transistors (dual reticle design)
+- Rubin CPX variant for massive-context processing (million-token)
 
 ---
 
@@ -178,7 +180,7 @@
 
 **Precision Timeline**:
 ```
-FP32 → FP16 → INT8 → TF32/BF16 → FP8 → FP4 → FP2?
+FP32 → FP16 → INT8 → TF32/BF16 → FP8 → FP4 (NVFP4 in Rubin)
 ```
 
 **Fermi**: FP32, FP64 only
@@ -237,7 +239,7 @@ FP32 → FP16 → INT8 → TF32/BF16 → FP8 → FP4 → FP2?
 | Ampere | 312 FP16 (TC) | 1.6 TB/s | NVLink 3.0: 600 GB/s | ~195 |
 | Hopper | 2000 FP8 (TC) | 3.35 TB/s | NVLink 4.0: 900 GB/s | ~597 |
 | Blackwell | ~4000 FP8 (est) | 8 TB/s | NVLink 5.0: 1.8 TB/s | ~500 |
-| Rubin | ~8000+ FP4 (est) | 10+ TB/s (HBM4) | NVLink 6 | ~800+ |
+| Rubin | 50,000 TF NVFP4 (inf) | 22 TB/s (HBM4) | NVLink 6 (3.6 TB/s) | 2273 |
 
 **Pattern**: Compute grows faster than memory initially, then balances. Interconnect grows to support multi-GPU scaling.
 
@@ -426,7 +428,7 @@ Future: Physical limits (CMOS, cooling, power density)
 | Ampere | 19.5 (TC) | 19.5 | 312 | 624 | — | — |
 | Hopper | 60 (TC) | 60 | 1000 | 2000 | **2000** | — |
 | Blackwell | — | — | — | — | 4000+ | **8000+** |
-| Rubin | — | — | — | — | 8000+ (est) | **16000+ (est)** |
+| Rubin | 50 PFLOPS (inf) | 35 PFLOPS (train) | — | — | 50,000 | **100,000** (w/ sparsity) |
 
 ### Memory Specifications
 
@@ -438,7 +440,7 @@ Future: Physical limits (CMOS, cooling, power density)
 | Ampere | HBM2e | 40/80 GB | 1.6/2.039 TB/s | **40 MB** |
 | Hopper | **HBM3** | 80 GB | 3.35 TB/s | 50 MB |
 | Blackwell | HBM3e | **192 GB** | **8 TB/s** | — |
-| Rubin | **HBM4** | **256+ GB (est)** | **10+ TB/s** | — |
+| Rubin | **HBM4** | **288 GB** | **22 TB/s** | 3nm TSMC, 336B transistors |
 
 ---
 

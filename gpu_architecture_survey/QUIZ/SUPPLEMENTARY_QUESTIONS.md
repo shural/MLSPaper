@@ -15,7 +15,7 @@
 | **Ampere** | 312 (TC) | 1.6 | **195 FLOPs/byte** | 40MB L2 cache, data compression |
 | **Hopper** | 2000 (FP8) | 3.35 | **597 FLOPs/byte** | TMA, 50MB L2, async pipelines |
 | **Blackwell** | 4000+ (FP4 est) | 8.0 | **500 FLOPs/byte** | Decompression engine, Grace link |
-| **Rubin** | 8000+ (FP4/FP2 est) | 10+ | **800+ FLOPs/byte** | HBM4, optical interconnect, PIM |
+| **Rubin** | 50,000 (NVFP4) | 22 | **2273 FLOPs/byte** | HBM4, NVLink 6, 336B transistors |
 
 ### Data Movement Cost Reduction Strategies by Generation:
 
@@ -64,7 +64,7 @@
 | **Ampere** | **Async copy** | MEDIUM - async primitives available | Async copy instruction |
 | **Hopper** | **TMA (Tensor Memory Accelerator)** | LOW - hardware-managed tensors | **Full automation** |
 | **Blackwell** | **TMA v2 + auto-decompress** | VERY LOW - describe, hardware executes | Decompression + routing |
-| **Rubin** | **Autonomous data orchestration** | MINIMAL - declarative only | AI-driven memory management |
+| **Rubin** | **TMA v3 + HBM4** | MINIMAL - hardware-managed | 22 TB/s bandwidth, 288 GB capacity |
 
 ### Detailed Evolution:
 
@@ -276,7 +276,7 @@ Blackwell: 50% error per-op (micro-scaling)
 | **Ampere** | **GPU Node** (8 GPUs) | Node | NVLink 3.0 (600 GB/s) | GPT-3 needs 8+ GPUs |
 | **Hopper** | **Multi-node cluster** (256 GPUs) | Cluster | NVLink Switch (57.6 TB/s) | Exascale training |
 | **Blackwell** | **Rack** (72 GPUs as one) | **NVL72 rack** | NVLink 5.0 (130 TB/s) | Rack = computer |
-| **Rubin** | **Data center** (multi-rack) | **Pod** | Optical fabric (500+ TB/s) | Disaggregated compute |
+| **Rubin** | **Rack** (72 GPUs = NVL72) | **NVL72 rack** | NVLink 6 (260 TB/s total) | Massive-context inference |
 
 ### Key Transitions:
 
@@ -330,7 +330,7 @@ Blackwell: 50% error per-op (micro-scaling)
 | **Ampere** | CUDA 11.0 | **Automatic Mixed Precision (AMP)** | TF32 auto-enable | **Automatic** (TF32) |
 | **Hopper** | CUDA 12.0 | **Transformer Engine** | Thread Block Clusters | FP8 auto-switching |
 | **Blackwell** | CUDA 12.x+ | FP4 support, NVL72 runtime | Multi-GPU as one | FP4 quantization |
-| **Rubin** | CUDA 13.0+ (est) | Multimodal Engine, FP2 | Optical interconnect API | FP2/binary (est) |
+| **Rubin** | CUDA 13.0+ | Rubin CPX for context | NVLink 6 (3.6 TB/s) | NVFP4 only |
 
 ### Library Evolution:
 
@@ -435,8 +435,7 @@ layer = te.Linear(512, 512, device='cuda')
 | **FP8** | Hopper | ✅ YES (new intrinsics) | ✅ YES (opt-in) | Requires explicit use |
 | **NVL72** | Blackwell | ⚠️ Runtime-level | ✅ YES (fabric manager) | Transparent to app |
 | **FP4** | Blackwell | ✅ YES | ⚠️ Inference-only | Not for training |
-| **Optical Interconnect** | Rubin | ✅ YES (new API) | ✅ YES (opt-in) | Transparent routing |
-| **FP2** | Rubin (est) | ✅ YES | ⚠️ Inference-only | Extreme quantization |
+| **NVLink 6** | Rubin | ✅ YES (3.6 TB/s) | ✅ YES | 2x bandwidth vs V5 |
 
 ### Backward Compatibility Analysis:
 
@@ -494,14 +493,14 @@ layer = te.Linear(512, 512, device='cuda')
 
 | ML Operation | Pre-Volta (Fermi-Pascal) | Volta-Turing | Ampere | Hopper | Blackwell | Rubin (est) |
 |--------------|-------------------------|--------------|---------|---------|-----------|-------------|
-| **Convolution** | Loop of FP32 FMA | **GEMM via im2col** → TC | TC + TF32 | TC + FP8 | TC + FP4 | TC + FP2 |
-| **Matrix Multiply** | Tiled FP32 FMA | **Tensor Core** (native) | TC + Sparsity | TC + FP8 | TC + FP4 | TC + FP2/binary |
+| **Convolution** | Loop of FP32 FMA | **GEMM via im2col** → TC | TC + TF32 | TC + FP8 | TC + FP4 | NVFP4 |
+| **Matrix Multiply** | Tiled FP32 FMA | **Tensor Core** (native) | TC + Sparsity | TC + FP8 | TC + FP4 | NVFP4/binary |
 | **Batch Norm** | Element-wise FP32 | FP32 (no TC) | Fused in cuDNN | Fused | Fused | PIM-accelerated |
 | **LayerNorm** | Reduce + scale | FP32 (no TC) | Fused in cuDNN | **Fused in TE** | Fused in TE | Multimodal Engine |
 | **Softmax** | Exp + reduce | FP32 (no TC) | Fused attention | **TE-optimized** | TE + FP4 | Hardware softmax |
 | **Attention (Q@K^T)** | GEMM (slow) | TC-accelerated | TC + flash attn | **TE + FP8** | **TE + FP4** + 2x accel | Attention Core |
 | **Attention (A@V)** | GEMM (slow) | TC-accelerated | TC + flash attn | TE + FP8 | TE + FP4 + 2x accel | Attention Core |
-| **MLP (Linear)** | GEMM | TC | TC + Sparsity | TE + FP8 | TE + FP4 | TC + FP2 |
+| **MLP (Linear)** | GEMM | TC | TC + Sparsity | TE + FP8 | TE + FP4 | NVFP4 |
 | **Embedding** | Memory lookup | Memory BW-bound | Same | Same | HBM3e (2.7x BW) | HBM4 + PIM |
 | **MoE Routing** | Scatter/gather | Inefficient | Same | Same | **Hardware router?** | **Routing Core** |
 | **RoPE/Positional** | Element-wise | FP32 | Fused in cuDNN | TE-fused | TE-fused | Multimodal Engine |
@@ -556,7 +555,7 @@ layer = te.Linear(512, 512, device='cuda')
 | **Ampere** | **2:4 Structured** | ✅ **Hardware accelerated** | **2x** | Exactly 2/4 zeros |
 | **Hopper** | 2:4 Structured | ✅ Hardware | 2x (FP8) | 2/4 zeros |
 | **Blackwell** | 2:4 Structured | ✅ Hardware | 2x (FP4) | 2/4 zeros |
-| **Rubin (est)** | Block sparse (8×8) | ✅ Hardware (projected) | 4-8x | 8×8 or 16×16 blocks |
+| **Rubin** | 2:4 Structured | ✅ Hardware | 2x | Same as Ampere/Hopper/Blackwell |
 
 ### Pre-Ampere (Software Sparsity):
 
@@ -695,7 +694,7 @@ C = A_sparse @ B  # Slower than dense!
 **Implicit Assumptions:**
 - **Model architecture**: Still transformer-based? Or shift to Mamba/SSM?
 - **Sparsity**: Extreme sparsity (95%+ zeros) becomes standard?
-- **Precision**: FP2 or binary for majority of inference?
+- **Precision**: NVFP4 continues from Blackwell, no FP2 announced
 
 ### Key Insight:
 **Blackwell**: Optimized for **current** workloads (long-context LLM inference)
@@ -735,7 +734,7 @@ Mamba: O(n) state evolution (matrix-vector!)
 ### Architectural Implications:
 
 **If GEMM remains dominant (likely):**
-- **Rubin**: 6th-gen Tensor Cores (FP2? Binary?)
+- **Rubin**: 6th-gen Tensor Cores (50 PFLOPS NVFP4, 5x Blackwell)
 - **Focus**: More precisions, more sparsity
 - **Evolution**: Incremental (like Blackwell→Hopper)
 
