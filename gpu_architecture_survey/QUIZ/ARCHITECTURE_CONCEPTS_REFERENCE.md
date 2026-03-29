@@ -282,7 +282,7 @@
 - **Bandwidth**: 900 GB/s (Volta) → 8 TB/s (Blackwell)
 - **Latency**: ~400-800 cycles
 
-**Evolution**: HBM2 → HBM2e → HBM3 → HBM3e → HBM4 (Rubin)
+**Evolution**: HBM2 → HBM2e → HBM3 → HBM3e → HBM4 (Rubin, 288 GB, 22 TB/s)
 
 #### **Texture Memory**
 - **Definition**: Read-only memory with spatial locality cache
@@ -367,7 +367,7 @@
   - V3 (Ampere): 600 GB/s
   - V4 (Hopper): 900 GB/s
   - V5 (Blackwell): 1.8 TB/s
-  - V6 (Rubin, projected): Optical, 10+ TB/s
+  - V6 (Rubin): 3.6 TB/s bidirectional, electrical
 - **Purpose**: Multi-GPU systems, enable GPU-to-GPU communication
 
 #### **NVLink Switch System** (Hopper)
@@ -584,7 +584,7 @@
 | Ampere | 2020 | HBM2e | 1.6-2.0 TB/s |
 | Hopper | 2022 | HBM3 | 3.35 TB/s |
 | Blackwell | 2024 | HBM3e | 8 TB/s |
-| Rubin | 2026 | HBM4 (est) | 10+ TB/s |
+| Rubin | 2026 | HBM4 | 22 TB/s |
 
 ---
 

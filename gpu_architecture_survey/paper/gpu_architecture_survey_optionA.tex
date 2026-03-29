@@ -54,7 +54,7 @@ A Causal, Bottleneck-Driven Analysis from Fermi to Rubin}
 \vskip 0.3in
 
 \begin{abstract}
-We present a systematic analysis of GPU architecture evolution from NVIDIA Fermi (2010) through the projected Rubin generation (2026), examining how each architectural transition directly addresses performance bottlenecks created by emerging machine learning workloads. We identify a clear causal chain: Fermi addressed HPC memory bandwidth, Volta introduced Tensor Cores for matrix multiplication throughput, Ampere added structured sparsity and TF32, Hopper optimized for transformer attention with FP8, and Blackwell targets inference efficiency with FP4. This survey provides both a historical perspective and predictive framework for understanding future GPU evolution as ML workloads continue to scale.
+We present a systematic analysis of GPU architecture evolution from NVIDIA Fermi (2010) through Rubin (2026), examining how each architectural transition directly addresses performance bottlenecks created by emerging machine learning workloads. We identify a clear causal chain: Fermi addressed HPC memory bandwidth, Volta introduced Tensor Cores for matrix multiplication throughput, Ampere added structured sparsity and TF32, Hopper optimized for transformer attention with FP8, and Blackwell targets inference efficiency with FP4. This survey provides both a historical perspective and predictive framework for understanding future GPU evolution as ML workloads continue to scale.
 \end{abstract}
 ]
 
@@ -73,7 +73,7 @@ This survey examines GPU architecture evolution through a \textit{bottleneck-dri
 \item \textbf{Ampere (2020)}: Sparsity and TF32 for training
 \item \textbf{Hopper (2022)}: Transformer-specific FP8 acceleration
 \item \textbf{Blackwell (2024)}: Inference scaling with FP4
-\item \textbf{Rubin (2026)}: Projected next-generation architecture
+\item \textbf{Rubin (2026)}: Energy efficiency and extreme-scale inference
 \end{itemize}
 
 For each generation, we examine ten fundamental questions spanning workload drivers, computational primitives, memory hierarchies, numerical precision, and performance scaling.
@@ -234,21 +234,21 @@ NVL72 bandwidth & 130 TB/s \\
 
 \subsection{Workload Context and Bottleneck}
 
-By 2026, multi-trillion parameter models (10T+), real-time multimodal AI, and extended reasoning push compute demands to new extremes. The dominant bottleneck shifts to \textbf{energy efficiency}: data centers approach physical megawatt-scale power limits, making performance-per-watt the critical metric.
+By 2026, multi-trillion parameter models (10T+), real-time multimodal AI, and extended reasoning push compute demands to new extremes. The dominant bottleneck shifts to \textbf{energy efficiency and inference token cost}: data centers approach physical megawatt-scale power limits, making performance-per-watt and cost-per-token the critical metrics for sustainable AI scaling.
 
 \subsection{Architectural Response}
 
-Rubin (announced 2H 2026) is NVIDIA's first architecture explicitly designed for energy-constrained extreme-scale AI \cite{nvidia2024rubin}. Built on TSMC 3nm process with significantly increased transistor count, Rubin is projected to deliver:
+Rubin, officially announced at CES 2026, is NVIDIA's first architecture explicitly designed for energy-constrained extreme-scale AI \cite{nvidia2024rubin}. Built on TSMC 3nm process with 336 billion transistors (dual reticle design), Rubin delivers:
 
-\textbf{3rd-gen Transformer Engine}: Extended FP4 precision support for both inference and training; enhanced FP8 capabilities; hardware-accelerated adaptive compression for activation sparsity; improved confidential computing for secure multi-tenant AI.
+\textbf{6th-gen Tensor Cores with NVFP4}: 50 PFLOPS NVFP4 inference performance (5x Blackwell); 35 PFLOPS NVFP4 training (3.5x Blackwell); extended FP4 precision support with micro-tensor scaling; enhanced FP8 capabilities; hardware-accelerated adaptive compression; improved confidential computing for secure multi-tenant AI.
 
-\textbf{HBM4 memory}: Next-generation high-bandwidth memory with substantially increased capacity and bandwidth over Blackwell, maintaining compute-memory balance at FP4 precision.
+\textbf{HBM4 memory}: 288 GB capacity per GPU (1.5x Blackwell); 22 TB/s bandwidth (2.75x Blackwell's 8 TB/s); compute-to-bandwidth ratio of $\sim$2273 FLOPs/byte at NVFP4 precision.
 
-\textbf{NVLink 6}: Further increased GPU-to-GPU bandwidth for tightly-coupled model parallelism in large-scale deployments.
+\textbf{NVLink 6}: 3.6 TB/s bidirectional bandwidth per GPU (2x NVLink 5); electrical interconnect (not optical); NVL72 configuration with 260 TB/s total scale-up bandwidth across 72 GPUs.
 
 \textbf{Rubin Platform}: Features the next-generation \textbf{Vera} Arm-based CPU for orchestration; next-generation SuperNICs for cluster networking; advanced DPUs for data processing; enhanced RAS Engine for data center reliability.
 
-Rubin targets 3--5x performance-per-watt improvement over Blackwell, addressing the energy efficiency bottleneck at extreme AI scale. \textbf{Remaining bottleneck}: Beyond 3nm, Moore's Law scaling slows---photonic interconnects or processing-in-memory may be required for continued progress.
+Rubin achieves 10x lower inference token cost versus Blackwell, directly addressing the energy efficiency and deployment cost bottlenecks at extreme AI scale. Full production began Q1 2026, with products shipping H2 2026. \textbf{Remaining bottleneck}: Beyond 3nm, Moore's Law scaling slows---photonic interconnects or processing-in-memory may be required for continued progress.
 
 \section{Cross-Generational Analysis}
 
@@ -267,10 +267,10 @@ Each generation's solution creates the next generation's bottleneck.
 \subsection{Precision Trajectory}
 
 \begin{equation}
-\text{FP32} \to \text{FP16} \to \text{INT8} \to \text{TF32/BF16} \to \text{FP8} \to \text{FP4} \to \text{FP2?}
+\text{FP32} \to \text{FP16} \to \text{INT8} \to \text{TF32/BF16} \to \text{FP8} \to \text{FP4 (NVFP4)}
 \end{equation}
 
-Precision halves every $\sim$3 years, justified by neural networks' noise tolerance, quantization-aware training, and per-layer adaptive precision.
+Precision halves every $\sim$3 years, justified by neural networks' noise tolerance, quantization-aware training, and per-layer adaptive precision. NVFP4 in Rubin represents the current frontier, with further reduction requiring careful validation.
 
 \subsection{Specialization and Memory Bandwidth Scaling}
 
@@ -288,6 +288,7 @@ Volta (2017) & 900 GB/s & 5.1x \\
 Ampere (2020) & 2.039 TB/s & 2.2x \\
 Hopper (2022) & 3.35 TB/s & 1.7x \\
 Blackwell (2024) & 8 TB/s & 2.4x \\
+Rubin (2026) & 22 TB/s & 2.75x \\
 \bottomrule
 \end{tabular}
 \caption{Memory bandwidth evolution ($\sim$2x every 2-3 years).}
@@ -307,7 +308,7 @@ This survey examined GPU architecture evolution through a bottleneck-driven lens
 
 \textbf{2. Specialization trajectory}: GPUs evolved from general-purpose (Fermi: 0\% specialized) to domain-specific (Blackwell: 90\% specialized). This trend will likely continue, with future GPUs resembling neural processing units.
 
-\textbf{3. Precision halving}: Numerical precision halves every $\sim$3 years (FP32 $\to$ FP16 $\to$ FP8 $\to$ FP4), justified by ML workloads' noise tolerance. FP2 or binary networks may emerge by 2027--2028.
+\textbf{3. Precision halving}: Numerical precision halves every $\sim$3 years (FP32 $\to$ FP16 $\to$ FP8 $\to$ FP4), justified by ML workloads' noise tolerance. NVFP4 (Rubin, 2026) represents the current frontier at 50 PFLOPS inference performance.
 
 \textbf{4. Memory-compute co-scaling}: Memory bandwidth grew $\sim$2x every 2--3 years, tracking compute growth. Future bottlenecks will arise if memory scaling slows.
 
